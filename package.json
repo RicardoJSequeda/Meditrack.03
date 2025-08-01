@@ -14,7 +14,12 @@
     "db:seed": "node scripts/seed-database.js",
     "supabase:setup": "npm run db:generate && npm run db:push",
     "supabase:migrate": "node scripts/migrate-to-supabase.js",
-    "supabase:seed": "node scripts/seed-supabase.js"
+    "supabase:seed": "node scripts/seed-supabase.js",
+    "verify:production": "node scripts/verify-production-setup.js",
+    "predeploy": "npm run verify:production",
+    "deploy:vercel": "npm run verify:production && vercel --prod",
+    "clean:deps": "node scripts/fix-dependencies.js",
+    "update:github": "node scripts/update-github.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -46,7 +51,7 @@
     "@radix-ui/react-toggle": "1.1.1",
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
-    "@supabase/auth-helpers-nextjs": "^0.9.0",
+    "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.39.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
@@ -71,7 +76,7 @@
     "prisma": "^6.12.0",
     "react": "^19",
     "react-chartjs-2": "^5.3.0",
-    "react-day-picker": "8.10.1",
+    "react-day-picker": "^9.8.1",
     "react-dom": "^19",
     "react-hook-form": "^7.54.1",
     "react-leaflet": "^5.0.0",
@@ -82,8 +87,8 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
-    "vaul": "^0.9.6",
-    "zod": "^3.24.1"
+    "vaul": "^1.1.2",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",

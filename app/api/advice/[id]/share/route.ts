@@ -8,28 +8,27 @@ const supabase = createClient(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
-    const { userId, platform } = await request.json()
+    const { id } = await params
+    const { userId } = await request.json()
 
     if (!userId) {
       return NextResponse.json({ error: 'Usuario requerido' }, { status: 400 })
     }
 
-    // Registrar el share
-    const { error: insertError } = await supabase
+    // Incrementar el contador de shares
+    const { error: updateError } = await supabase
       .from('advice_shares')
-      .insert({
+      .upsert({
         adviceId: id,
         userId: userId,
-        platform: platform || 'web',
         createdAt: new Date().toISOString()
       })
 
-    if (insertError) {
-      console.error('Error recording share:', insertError)
+    if (updateError) {
+      console.error('Error updating share count:', updateError)
       return NextResponse.json({ error: 'Error al registrar share' }, { status: 500 })
     }
 

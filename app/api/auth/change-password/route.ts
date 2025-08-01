@@ -81,9 +81,9 @@ export async function PUT(request: NextRequest) {
     console.error('❌ Error al cambiar contraseña:', error)
     
     if (error instanceof z.ZodError) {
-      console.error('❌ Error de validación:', error.errors)
+      console.error('❌ Error de validación:', error.issues)
       return NextResponse.json(
-        { error: 'Datos inválidos', details: error.errors },
+        { error: 'Datos inválidos', details: error.issues },
         { status: 400 }
       )
     }

@@ -20,6 +20,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const userData = RegisterSchema.parse(body)
 
+    // Verificar que supabaseAdmin esté disponible
+    if (!supabaseAdmin) {
+      console.error('Supabase admin no configurado')
+      return NextResponse.json(
+        { error: 'Error de configuración del servidor' },
+        { status: 500 }
+      )
+    }
+
     // Verificar si el usuario ya existe
     const { data: existingUser } = await supabaseAdmin
       .from('users')
@@ -102,7 +111,7 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Datos de entrada inválidos', details: error.errors },
+        { error: 'Datos de entrada inválidos', details: error.issues },
         { status: 400 }
       )
     }

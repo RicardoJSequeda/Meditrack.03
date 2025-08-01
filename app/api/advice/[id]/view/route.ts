@@ -8,10 +8,10 @@ const supabase = createClient(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const { userId } = await request.json()
 
     if (!userId) {
@@ -24,7 +24,7 @@ export async function POST(
       .insert({
         adviceId: id,
         userId: userId,
-        createdAt: new Date().toISOString()
+        viewedAt: new Date().toISOString()
       })
 
     if (insertError) {

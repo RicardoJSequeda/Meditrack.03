@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
     let filteredAdvice = transformedAdvice
     if (tag && tag !== 'all') {
       filteredAdvice = transformedAdvice.filter(item => 
-        item.tags.some(t => t.toLowerCase().includes(tag.toLowerCase()))
+        item.tags.some((t: string) => t.toLowerCase().includes(tag.toLowerCase()))
       )
     }
 

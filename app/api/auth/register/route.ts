@@ -51,9 +51,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (error instanceof z.ZodError) {
-      console.error('❌ ZodError:', error.errors)
+      console.error('❌ ZodError:', error.issues)
       return NextResponse.json(
-        { success: false, error: 'Datos inválidos', details: error.errors },
+        { success: false, error: 'Datos inválidos', details: error.issues },
         { status: 400 }
       )
     }

@@ -8,30 +8,23 @@ const supabase = createClient(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const { userId } = await request.json()
 
-    console.log('API like - adviceId:', id)
-    console.log('API like - userId:', userId)
-
     if (!userId) {
-      console.log('API like - error: usuario requerido')
       return NextResponse.json({ error: 'Usuario requerido' }, { status: 400 })
     }
 
     // Verificar si ya existe el like
-    const { data: existingLike, error: checkError } = await supabase
+    const { data: existingLike } = await supabase
       .from('advice_likes')
       .select('id')
       .eq('adviceId', id)
       .eq('userId', userId)
       .single()
-
-    console.log('API like - existingLike:', existingLike)
-    console.log('API like - checkError:', checkError)
 
     if (existingLike) {
       // Si ya existe, eliminar el like
@@ -40,8 +33,6 @@ export async function POST(
         .delete()
         .eq('adviceId', id)
         .eq('userId', userId)
-
-      console.log('API like - deleteError:', deleteError)
 
       if (deleteError) {
         console.error('Error removing like:', deleteError)
@@ -58,8 +49,6 @@ export async function POST(
           userId: userId,
           createdAt: new Date().toISOString()
         })
-
-      console.log('API like - insertError:', insertError)
 
       if (insertError) {
         console.error('Error adding like:', insertError)

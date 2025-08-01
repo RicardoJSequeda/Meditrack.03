@@ -152,6 +152,7 @@ export default function EmergencyPage() {
   const [showMedicalInfoModal, setShowMedicalInfoModal] = useState(false)
   const [showEditMedicalInfoModal, setShowEditMedicalInfoModal] = useState(false)
   const [editingMedicalInfo, setEditingMedicalInfo] = useState<MedicalInfo>({
+    id: "",
     bloodType: "",
     allergies: [],
     medications: [],

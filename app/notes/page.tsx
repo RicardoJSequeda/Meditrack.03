@@ -37,6 +37,7 @@ import {
   BookOpen,
 } from "lucide-react"
 import { useNotes, updateNote, deleteNote as deleteNoteApi } from '@/hooks/use-notes'
+import { WelcomeMessage } from '@/components/welcome-message'
 
 interface Note {
   id: string

@@ -353,7 +353,7 @@ export default function MedicalHistoryPage() {
     const url = URL.createObjectURL(dataBlob)
     const link = document.createElement("a")
     link.href = url
-    link.download = `historial-medico-${patientInfo.name.replace(/\s+/g, "-")}-${new Date().toISOString().split("T")[0]}.${format}`
+    link.download = `historial-medico-${patientInfo?.name?.replace(/\s+/g, "-") || "usuario"}-${new Date().toISOString().split("T")[0]}.${format}`
     link.click()
     URL.revokeObjectURL(url)
   }, [patientInfo, diagnoses, treatments, medicalEvents, medicalDocuments])

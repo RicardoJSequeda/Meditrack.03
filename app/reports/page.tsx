@@ -131,12 +131,12 @@ export default function ReportsPage() {
   const chartData = {
     labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
     healthMetrics: {
-      presionArterial: healthMetrics.filter(m => m.name === 'Presión Arterial').map(m => m.value) || [120, 118, 125, 122, 119, 121, 123],
-      frecuenciaCardiaca: healthMetrics.filter(m => m.name === 'Frecuencia Cardíaca').map(m => m.value) || [72, 70, 75, 73, 71, 74, 72],
-      glucosa: healthMetrics.filter(m => m.name === 'Glucosa').map(m => m.value) || [95, 92, 98, 94, 91, 96, 93],
-      peso: healthMetrics.filter(m => m.name === 'Peso').map(m => m.value) || [70.2, 70.1, 70.5, 70.3, 70.4, 70.6, 70.5],
+      presionArterial: healthMetrics.filter((m: HealthMetric) => m.name === 'Presión Arterial').map((m: HealthMetric) => m.value) || [120, 118, 125, 122, 119, 121, 123],
+      frecuenciaCardiaca: healthMetrics.filter((m: HealthMetric) => m.name === 'Frecuencia Cardíaca').map((m: HealthMetric) => m.value) || [72, 70, 75, 73, 71, 74, 72],
+      glucosa: healthMetrics.filter((m: HealthMetric) => m.name === 'Glucosa').map((m: HealthMetric) => m.value) || [95, 92, 98, 94, 91, 96, 93],
+      peso: healthMetrics.filter((m: HealthMetric) => m.name === 'Peso').map((m: HealthMetric) => m.value) || [70.2, 70.1, 70.5, 70.3, 70.4, 70.6, 70.5],
     },
-    adherence: medicationAdherence.map(m => m.adherence) || [85, 90, 88, 92, 87, 89, 91],
+          adherence: medicationAdherence.map((m: MedicationAdherence) => m.adherence) || [85, 90, 88, 92, 87, 89, 91],
     appointments: appointments.length > 0 ? [appointments.length, 0, 1, 0, 1, 0, 0] : [1, 0, 1, 0, 1, 0, 0],
   }
 

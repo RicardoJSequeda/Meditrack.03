@@ -1,0 +1,516 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Modelo de Usuario
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  address   String?
+  bloodType String?
+  emergencyContact String?
+  dateOfBirth DateTime?
+  gender    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  diagnoses    Diagnosis[]
+  treatments   Treatment[]
+  medicalEvents MedicalEvent[]
+  documents    MedicalDocument[]
+  appointments Appointment[]
+  reminders    Reminder[]
+  notes        MedicalNote[]
+  emergencyEvents EmergencyEvent[]
+  emergencyContacts EmergencyContact[]
+
+  // Nuevas relaciones con consejos
+  adviceLikes    AdviceLike[]
+  adviceBookmarks AdviceBookmark[]
+  adviceShares   AdviceShare[]
+  adviceViews    AdviceView[]
+  
+  // Relación con notas personales
+  personalNotes Note[]
+
+  @@map("users")
+}
+
+// Modelo de Diagnóstico
+model Diagnosis {
+  id            String   @id @default(cuid())
+  condition     String
+  diagnosedDate DateTime
+  doctor        String
+  specialty     String
+  severity      Severity
+  status        DiagnosisStatus
+  lastReading   String?
+  nextCheckup   DateTime?
+  notes         String?
+  userId        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relaciones
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  treatments Treatment[]
+
+  @@map("diagnoses")
+}
+
+// Modelo de Tratamiento
+model Treatment {
+  id           String   @id @default(cuid())
+  medication   String
+  dosage       String
+  frequency    String
+  startDate    DateTime
+  endDate      DateTime?
+  adherence    Int      @default(0)
+  status       TreatmentStatus
+  sideEffects  String?
+  doctorNotes  String?
+  prescribedBy String
+  diagnosisId  String?
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relaciones
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  diagnosis Diagnosis? @relation(fields: [diagnosisId], references: [id])
+
+  @@map("treatments")
+}
+
+// Modelo de Evento Médico
+model MedicalEvent {
+  id          String   @id @default(cuid())
+  type        EventType
+  title       String
+  date        DateTime
+  location    String
+  doctor      String
+  description String
+  outcome     String
+  followUp    String?
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("medical_events")
+}
+
+// Modelo de Documento Médico
+model MedicalDocument {
+  id             String   @id @default(cuid())
+  type           DocumentType
+  title          String
+  date           DateTime
+  doctor         String
+  category       String
+  description    String
+  fileUrl        String?
+  results        String?
+  recommendations String?
+  userId         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("medical_documents")
+}
+
+// Modelo de Cita Médica
+model Appointment {
+  id          String   @id @default(cuid())
+  title       String
+  date        DateTime
+  duration    Int      // en minutos
+  doctor      String
+  specialty   String
+  location    String
+  notes       String?
+  status      AppointmentStatus @default(SCHEDULED)
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("appointments")
+}
+
+// Modelo de Recordatorio
+model Reminder {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  type        ReminderType
+  isCompleted Boolean  @default(false)
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("reminders")
+}
+
+// Modelo de Notas Médicas
+model MedicalNote {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  category  String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isPinned  Boolean  @default(false)
+  isFavorite Boolean @default(false)
+  isArchived Boolean @default(false)
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("medical_notes")
+}
+
+// Modelo de Evento de Emergencia
+model EmergencyEvent {
+  id                  String   @id @default(cuid())
+  userId              String
+  isActive            Boolean
+  startTime           DateTime?
+  duration            Int
+  location            String?
+  contactsNotified    String?
+  medicalInfoSnapshot String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Modelo de Contacto de Emergencia
+model EmergencyContact {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  relationship String
+  phone        String
+  isPrimary    Boolean  @default(false)
+  isOnline     Boolean  @default(false)
+  lastSeen     DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Modelo de Autor de Consejos
+model AdviceAuthor {
+  id          String   @id @default(cuid())
+  name        String
+  credentials String
+  avatar      String?
+  verified    Boolean  @default(false)
+  bio         String?
+  specialty   String?
+  experience  Int?     // años de experiencia
+  website     String?
+  socialMedia Json?    // { twitter, linkedin, instagram }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  advice Advice[]
+
+  @@map("advice_authors")
+}
+
+// Modelo de Categoría de Consejos
+model AdviceCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  color       String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  advice Advice[]
+
+  @@map("advice_categories")
+}
+
+// Modelo de Consejo de Salud
+model Advice {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  excerpt     String?  // resumen corto para preview
+  difficulty  AdviceDifficulty
+  readTime    Int      // en minutos
+  featured    Boolean  @default(false)
+  trending    Boolean  @default(false)
+  published   Boolean  @default(true)
+  publishedAt DateTime @default(now())
+  authorId    String
+  categoryId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  author     AdviceAuthor   @relation(fields: [authorId], references: [id])
+  category   AdviceCategory @relation(fields: [categoryId], references: [id])
+  tagRelations AdviceTagRelation[]
+  likes      AdviceLike[]
+  bookmarks  AdviceBookmark[]
+  shares     AdviceShare[]
+  views      AdviceView[]
+
+  @@map("advice")
+}
+
+// Modelo de Etiquetas
+model AdviceTag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  color     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  tagRelations AdviceTagRelation[]
+
+  @@map("advice_tags")
+}
+
+// Tabla de relación muchos a muchos entre consejos y etiquetas
+model AdviceTagRelation {
+  id        String   @id @default(cuid())
+  adviceId  String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  advice Advice @relation(fields: [adviceId], references: [id], onDelete: Cascade)
+  tag    AdviceTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([adviceId, tagId])
+  @@map("advice_tag_relations")
+}
+
+// Modelo de Like de Consejo
+model AdviceLike {
+  id        String   @id @default(cuid())
+  adviceId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  advice Advice @relation(fields: [adviceId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([adviceId, userId])
+  @@map("advice_likes")
+}
+
+// Modelo de Bookmark de Consejo
+model AdviceBookmark {
+  id        String   @id @default(cuid())
+  adviceId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  advice Advice @relation(fields: [adviceId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([adviceId, userId])
+  @@map("advice_bookmarks")
+}
+
+// Modelo de Compartir de Consejo
+model AdviceShare {
+  id        String   @id @default(cuid())
+  adviceId  String
+  userId    String
+  platform  String?  // facebook, twitter, whatsapp, etc.
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  advice Advice @relation(fields: [adviceId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("advice_shares")
+}
+
+// Modelo de Vista de Consejo
+model AdviceView {
+  id        String   @id @default(cuid())
+  adviceId  String
+  userId    String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  advice Advice @relation(fields: [adviceId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("advice_views")
+}
+
+// Enums
+enum Severity {
+  LEVE
+  MODERADA
+  GRAVE
+}
+
+enum DiagnosisStatus {
+  ACTIVA
+  CONTROLADA
+  RESUELTA
+}
+
+enum TreatmentStatus {
+  ACTIVO
+  SUSPENDIDO
+  COMPLETADO
+}
+
+enum EventType {
+  CIRUGIA
+  EMERGENCIA
+  VACUNA
+  CONSULTA
+  HOSPITALIZACION
+  PROCEDIMIENTO
+}
+
+enum DocumentType {
+  ANALISIS
+  RADIOGRAFIA
+  INFORME
+  RECETA
+  CERTIFICADO
+  NOTA
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum ReminderType {
+  MEDICATION
+  APPOINTMENT
+  TEST
+  EXERCISE
+  DIET
+  OTHER
+}
+
+enum AdviceDifficulty {
+  FACIL
+  INTERMEDIO
+  AVANZADO
+} 
+
+model NoteCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?
+  color       String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  notes Note[]
+
+  @@map("note_categories")
+}
+
+model NoteTag {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  color     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  notes NoteTagRelation[]
+
+  @@map("note_tags")
+}
+
+model Note {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  content     String
+  categoryId  String?
+  isPinned    Boolean  @default(false)
+  isFavorite  Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+  wordCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category NoteCategory? @relation(fields: [categoryId], references: [id])
+  tags     NoteTagRelation[]
+
+  @@map("notes")
+}
+
+model NoteTagRelation {
+  id      String @id @default(cuid())
+  noteId  String
+  tagId   String
+  createdAt DateTime @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  tag  NoteTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([noteId, tagId])
+  @@map("note_tag_relations")
+} 

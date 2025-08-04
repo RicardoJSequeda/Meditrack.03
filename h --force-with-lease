@@ -1,0 +1,5 @@
+[33m24a2136[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Fix missing gray color in analytics charts COLORS object
+[33m3c2dfc5[m Add functional analytics charts with real data visualization for evolution, specialty distribution, adherence metrics, and factor correlation
+[33m81dfcca[m Add advanced health charts, AI predictions, and comparison components with real data visualization
+[33m6d21f2a[m Add advanced reports page with detailed medical reports, modal views, and automated report generator
+[33mc7c1d05[m Fix hydration error: replace p tag with div and update Next.js config
